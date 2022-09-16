@@ -48,18 +48,18 @@ players.push(msg.sender);
 if(players.length==maxPlayers) getRandomWinner();
     }
 
-    function fulfillRandomness(bytes32 requestId,uint256 randomness) internal virtual(){
+    function fulfillRandomness(bytes32 requestId,uint256 randomness) internal virtual override{
        uint256 winnerIndex=randomness%players.length;
        address winner=players[winnerIndex];
        (bool sent,)=winner.call{value:address(this).balance}('');
-       require(sent,'failded to send ether);
+       require(sent,'failed to send ether');
   emit GameEnded(gameId,winner,requestId);
   gameStarted=false;
     }
 
     function getRandomWinner() private returns(bytes32 requestId){
-require(LINK.balanceOf(address(this))>=fee,'Not enough');
-return reqestRandomness(keyHash,fee);
+require(LINK.balanceOf(address(this))>=fee,'Not enough LINK');
+return requestRandomness(keyHash,fee);
     }
     receive() external payable{}
 
