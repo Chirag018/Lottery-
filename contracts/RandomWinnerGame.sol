@@ -30,38 +30,43 @@ contract RandomWinnerGame is VRFConsumerBase, Ownable {
         gameStarted = false;
     }
 
-    function startGame(uint8 _maxPlayer,uint256 _entryFee) public onlyOwner{
-require(!gameStarted,'Game is running!!');
-delete players;
-maxPlayers=_maxPlayer;
-gameStarted=true;
-entryFee=_entryFee;
-gameId+=1;
-emit GameStarted(gameId, maxPlayers, entryFee);
+    function startGame(uint8 _maxPlayer, uint256 _entryFee) public onlyOwner {
+        require(!gameStarted, "Game is running!!");
+        delete players;
+        maxPlayers = _maxPlayer;
+        gameStarted = true;
+        entryFee = _entryFee;
+        gameId += 1;
+        emit GameStarted(gameId, maxPlayers, entryFee);
     }
 
-    function joinGame() public payable{
-require(gameStarted,'Game has to began');
-require(msg.value==entryFee,'Value sent is not equal to entryfee');
-require(players.length<maxPlayers,'gameis full');
-players.push(msg.sender);
-if(players.length==maxPlayers) getRandomWinner();
+    function joinGame() public payable {
+        require(gameStarted, "Game has to began");
+        require(msg.value == entryFee, "Value sent is not equal to entryfee");
+        require(players.length < maxPlayers, "gameis full");
+        players.push(msg.sender);
+        if (players.length == maxPlayers) getRandomWinner();
     }
 
-    function fulfillRandomness(bytes32 requestId,uint256 randomness) internal virtual override{
-       uint256 winnerIndex=randomness%players.length;
-       address winner=players[winnerIndex];
-       (bool sent,)=winner.call{value:address(this).balance}('');
-       require(sent,'failed to send ether');
-  emit GameEnded(gameId,winner,requestId);
-  gameStarted=false;
+    function fulfillRandomness(bytes32 requestId, uint256 randomness)
+        internal
+        virtual
+        override
+    {
+        uint256 winnerIndex = randomness % players.length;
+        address winner = players[winnerIndex];
+        (bool sent, ) = winner.call{value: address(this).balance}("");
+        require(sent, "failed to send ether");
+        emit GameEnded(gameId, winner, requestId);
+        gameStarted = false;
     }
 
-    function getRandomWinner() private returns(bytes32 requestId){
-require(LINK.balanceOf(address(this))>=fee,'Not enough LINK');
-return requestRandomness(keyHash,fee);
+    function getRandomWinner() private returns (bytes32 requestId) {
+        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK");
+        return requestRandomness(keyHash, fee);
     }
-    receive() external payable{}
 
-    fallback() external payable{}
+    receive() external payable {}
+
+    fallback() external payable {}
 }

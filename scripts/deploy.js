@@ -4,10 +4,7 @@ require("@nomiclabs/hardhat-etherscan");
 const { FEE, VRF_COORDINATOR, LINK_TOKEN, KEY_HASH } = require("../constants");
 
 async function main() {
-  /*
- A ContractFactory in ethers.js is an abstraction used to deploy new smart contracts,
- so randomWinnerGame here is a factory for instances of our RandomWinnerGame contract.
- */
+
   const randomWinnerGame = await ethers.getContractFactory("RandomWinnerGame");
   // deploy the contract
   const deployedRandomWinnerGameContract = await randomWinnerGame.deploy(
